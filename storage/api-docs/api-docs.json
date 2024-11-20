@@ -1,0 +1,486 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Controle de Estoque API",
+        "description": "API para controle de estoque, movimentações e autenticação",
+        "termsOfService": "http://example.com/terms/",
+        "contact": {
+            "name": "Leonardo Losso",
+            "email": "leonardolosso.sz@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Autentica o usuário e gera um token",
+                "description": "Este endpoint permite o login do usuário e retorna um token de autenticação.",
+                "operationId": "be2e78e5f93182d4403f839cc516d312",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "Email do usuário",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "Senha do usuário",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Autenticado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "description": "Token de autenticação gerado",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Credenciais inválidas"
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Revoga o token do usuário",
+                "description": "Este endpoint permite ao usuário sair da sessão, invalidando o token de autenticação.",
+                "operationId": "0b366af9c6842623aab9c8827c519b89",
+                "responses": {
+                    "200": {
+                        "description": "Token revogado com sucesso"
+                    },
+                    "401": {
+                        "description": "Não autorizado, usuário não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/users": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Listar todos os usuários",
+                "description": "Retorna uma lista de todos os usuários cadastrados.",
+                "operationId": "65a32faa1c46f1978660089b02967582",
+                "responses": {
+                    "200": {
+                        "description": "Lista de usuários",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserResource"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Não autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Criar um novo usuário",
+                "description": "Cria um novo usuário com base nos dados fornecidos.",
+                "operationId": "4166df8e60769d8451d572be3f9d213b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "firstName",
+                                    "lastName",
+                                    "email",
+                                    "password",
+                                    "password_confirmation",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "firstName": {
+                                        "description": "Primeiro nome do usuário.",
+                                        "type": "string"
+                                    },
+                                    "lastName": {
+                                        "description": "Último nome do usuário.",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "Email do usuário.",
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "description": "Telefone do usuário.",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "Senha do usuário.",
+                                        "type": "string"
+                                    },
+                                    "password_confirmation": {
+                                        "description": "Confirmação da senha.",
+                                        "type": "string"
+                                    },
+                                    "role": {
+                                        "description": "Papel do usuário.",
+                                        "type": "string",
+                                        "enum": [
+                                            "user",
+                                            "manager",
+                                            "admin"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    },
+                    "403": {
+                        "description": "Não autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/users/{id}": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Exibir um usuário específico",
+                "description": "Retorna os detalhes de um usuário com base no ID fornecido.",
+                "operationId": "54eeaf815c93fccf4578834feef4e443",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do usuário",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Atualizar um usuário",
+                "description": "Atualiza os detalhes de um usuário com base no ID fornecido.",
+                "operationId": "55949faa511ca3a28f3b6a243d4f0502",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "firstName": {
+                                        "description": "Primeiro nome do usuário.",
+                                        "type": "string"
+                                    },
+                                    "lastName": {
+                                        "description": "Último nome do usuário.",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "Email do usuário.",
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "description": "Telefone do usuário.",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "Nova senha do usuário.",
+                                        "type": "string"
+                                    },
+                                    "password_confirmation": {
+                                        "description": "Confirmação da nova senha.",
+                                        "type": "string"
+                                    },
+                                    "role": {
+                                        "description": "Papel do usuário.",
+                                        "type": "string",
+                                        "enum": [
+                                            "user",
+                                            "manager",
+                                            "admin"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Usuário atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Não autorizado"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Excluir um usuário",
+                "description": "Exclui um usuário com base no ID fornecido.",
+                "operationId": "17bb8d703e43753716297f1a7fa6e3fe",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Usuário excluído com sucesso"
+                    },
+                    "403": {
+                        "description": "Não autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UserResource": {
+                "required": [
+                    "firstName",
+                    "lastName",
+                    "fullName",
+                    "email"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID do usuário",
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "description": "Primeiro nome do usuário",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Último nome do usuário",
+                        "type": "string"
+                    },
+                    "fullName": {
+                        "description": "Nome completo do usuário",
+                        "type": "string"
+                    },
+                    "phone": {
+                        "description": "Telefone do usuário",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "email": {
+                        "description": "Email do usuário",
+                        "type": "string",
+                        "format": "email"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID do usuário",
+                        "type": "integer"
+                    },
+                    "firstName": {
+                        "description": "Primeiro nome do usuário",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Último nome do usuário",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "Email do usuário",
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "phone": {
+                        "description": "Telefone do usuário",
+                        "type": "string"
+                    },
+                    "role": {
+                        "description": "Papel do usuário",
+                        "type": "string",
+                        "enum": [
+                            "user",
+                            "manager",
+                            "admin"
+                        ]
+                    },
+                    "created_at": {
+                        "description": "Data de criação",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Data de atualização",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Autenticação",
+            "description": "Autenticação"
+        },
+        {
+            "name": "Usuários",
+            "description": "Usuários"
+        }
+    ]
+}
