@@ -6,7 +6,7 @@ use App\Models\User;
 
 class UserPolicy
 {
-    public function viewAny(User $authUser)
+    public function restringeUser(User $authUser)
     {
         return in_array($authUser->role, ['admin', 'manager']);
     }
