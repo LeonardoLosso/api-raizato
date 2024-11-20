@@ -72,6 +72,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return $this->response('Ok', 200, [$category]);
+        return $this->response('No Content', 204, [$category]);
     }
 }
