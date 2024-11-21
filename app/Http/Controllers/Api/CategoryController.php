@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Traits\HttpResponses;
 
 /**
  * @OA\Tag(
@@ -15,6 +16,8 @@ use Illuminate\Http\Request;
  */
 class CategoryController extends Controller
 {
+    use HttpResponses;
+
     /**
      * @OA\Get(
      *     path="/api/categorias",
@@ -57,16 +60,13 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $this->authorize('userDeny', User::class);
+        $validatedData = $request->validated();
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:50',
-            'description' => 'nullable|string|max:500',
-        ]);
-
-        $category = Category::create($validated);
+        $category = Category::create($validatedData);
+        if (!$category)
+            return $this->error('Erro ao criar categoria', 400);
 
         return $this->response('Created', 201, [$category]);
     }
@@ -139,24 +139,13 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, Category $category)
     {
-        $this->authorize('userDeny', User::class);
+        $validatedData  = $request->validated();
 
-        $category = Category::find($id);
+        $category->fill($validatedData)->save();
 
-        if (!$category) {
-            return $this->response('Not Found', 404, [$category]);
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:500',
-        ]);
-
-        $category->update($validated);
-
-        return $this->response('Created', 201, [$category]);
+        return $this->response('Categoria atualizada com sucesso', 200, [$category]);
     }
 
     /**
@@ -185,15 +174,9 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
         $this->authorize('userDeny', User::class);
-
-        $category = Category::find($id);
-
-        if (!$category) {
-            return $this->response('Not Found', 404, [$category]);
-        }
 
         $category->delete();
 
