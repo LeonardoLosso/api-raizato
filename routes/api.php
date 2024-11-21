@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\UserController;
 use App\Http\Controllers\Api\CategoryController;

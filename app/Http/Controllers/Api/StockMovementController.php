@@ -9,9 +9,33 @@ use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Tag(
+ *     name="Movimentações",
+ *     description="Endpoints relacionados à gestão de movimentações de estoque."
+ * )
+ */
 class StockMovementController extends Controller
 {
     use HttpResponses;
+
+    /**
+     * @OA\Get(
+     *     path="/api/estoque",
+     *     summary="Listar todos os movimentos de estoque",
+     *     operationId="indexStockMovements",
+     *     tags={"Movimentações"},
+     *     security={{"apiAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de movimentos de estoque",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/StockMovement"))
+     *     ),
+     *     @OA\Response(response=401, description="Não autorizado"),
+     *     @OA\Response(response=403, description="Proibido"),
+     *     @OA\Response(response=404, description="Não encontrado")
+     * )
+     */
 
     public function index()
     {
@@ -22,6 +46,27 @@ class StockMovementController extends Controller
         return $this->response('Ok', 200, [$movements]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/estoque",
+     *     summary="Criar um novo movimento de estoque",
+     *     operationId="storeStockMovement",
+     *     tags={"Movimentações"},
+     *     security={{"apiAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StockMovement")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Movimento de estoque criado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/StockMovement")
+     *     ),
+     *     @OA\Response(response=400, description="Erro na validação dos dados"),
+     *     @OA\Response(response=401, description="Não autorizado"),
+     *     @OA\Response(response=403, description="Proibido")
+     * )
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -46,6 +91,29 @@ class StockMovementController extends Controller
         return $this->response('Created', 201, [$movement]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/estoque/historico/{productId}",
+     *     summary="Histórico de movimentações de estoque por produto",
+     *     operationId="historyByProduct",
+     *     tags={"Movimentações"},
+     *     security={{"apiAuth": {}}},
+     *     @OA\Parameter(
+     *         name="productId",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Histórico de movimentos de estoque do produto",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/StockMovement"))
+     *     ),
+     *     @OA\Response(response=404, description="Produto não encontrado ou sem histórico"),
+     *     @OA\Response(response=401, description="Não autorizado"),
+     *     @OA\Response(response=403, description="Proibido")
+     * )
+     */
     public function historyByProduct($productId)
     {
         $this->authorize('userDeny', User::class);

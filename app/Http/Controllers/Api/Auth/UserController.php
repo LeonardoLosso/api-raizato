@@ -8,6 +8,12 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Traits\HttpResponses;
 
+/**
+ * @OA\Tag(
+ *     name="Usuários",
+ *     description="Endpoints relacionados à gestão de usuários"
+ * )
+ */
 class UserController extends Controller
 {
     use HttpResponses;

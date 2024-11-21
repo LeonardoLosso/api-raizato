@@ -7,24 +7,30 @@ use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @OA\Info(
+ *     title="Controle de Estoque API",
+ *     version="1.0.0",
+ *     description="API para controle de estoque, movimentações e autenticação",
+ *     termsOfService="http://example.com/terms/",
+ *     contact={
+ *         "name"="Leonardo Losso",
+ *         "email"="leonardolosso.sz@gmail.com"
+ *     },
+ *     license={
+ *         "name"="MIT",
+ *         "url"="https://opensource.org/licenses/MIT"
+ *     }
+ * ),
+ * @OA\Tag(
+ *     name="Autenticação",
+ *     description="Endpoints relacionados à autenticação do usuário."
+ * )
+ */
 class AuthController extends Controller
 {
     use HttpResponses;
     /**
-     * @OA\Info(
-     *     title="Controle de Estoque API",
-     *     version="1.0.0",
-     *     description="API para controle de estoque, movimentações e autenticação",
-     *     termsOfService="http://example.com/terms/",
-     *     contact={
-     *         "name"="Leonardo Losso",
-     *         "email"="leonardolosso.sz@gmail.com"
-     *     },
-     *     license={
-     *         "name"="MIT",
-     *         "url"="https://opensource.org/licenses/MIT"
-     *     }
-     * ),
      * @OA\Post(
      *     path="/api/auth/login",
      *     tags={"Autenticação"},
