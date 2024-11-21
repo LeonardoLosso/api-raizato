@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\ProductService;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 
@@ -17,6 +19,13 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     use HttpResponses;
+
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
 
     /**
      * @OA\Get(
@@ -60,22 +69,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::query();
-
-        if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('description', 'like', '%' . $request->search . '%');
-        }
-        if ($request->has('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
-        if ($request->has('fornecedor_id')) {
-            $query->where('fornecedor_id', $request->fornecedor_id);
-        }
-        if ($request->has('low_stock')) {
-            $query->where('stock', '<', 'min_stock');
-        }
-        $products = $query->get();
+        $products = $this->productService->getProducts($request->all());
 
         return $this->response('Ok', 200, [$products]);
     }
@@ -111,23 +105,11 @@ class ProductController extends Controller
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
-        $this->authorize('userDeny', User::class);
+        $validatedData = $request->validate();
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:50',
-            'code' => 'required|string|unique:products,code',
-            'description' => 'nullable|string|max:500',
-            'category_id' => 'required|exists:categories,id',
-            'fornecedor_id' => 'required|exists:fornecedores,id',
-            'cost_price' => 'required|numeric',
-            'sale_price' => 'required|numeric',
-            'min_stock' => 'required|integer',
-            'expiry_date' => 'required|date',
-        ]);
-
-        $product = Product::create($validated);
+        $product = Product::create($validatedData);
 
         return $this->response('Created', 201, [$product]);
     }
@@ -159,13 +141,9 @@ class ProductController extends Controller
      *     )
      * )
      */
-    public function show($id)
+    public function show(Product $product)
     {
-        $product = Product::with(['category', 'fornecedor'])->find($id);
-
-        if (!$product) {
-            return $this->error('Not Found', 404);
-        }
+        $product->load($product->getRelations());
 
         return $this->response('Ok', 200, [$product]);
     }
@@ -201,29 +179,11 @@ class ProductController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function update(ProductRequest $request, Product $product)
     {
-        $this->authorize('userDeny', User::class);
+        $validatedData = $request->validate();
 
-        $product = Product::find($id);
-
-        if (!$product) {
-            return $this->error('Not Found', 404);
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:50',
-            'code' => 'required|string|unique:products,code,' . $id,
-            'description' => 'nullable|string|max:500',
-            'category_id' => 'required|exists:categories,id',
-            'fornecedor_id' => 'required|exists:fornecedores,id',
-            'cost_price' => 'required|numeric',
-            'sale_price' => 'required|numeric',
-            'min_stock' => 'required|integer',
-            'expiry_date' => 'required|date',
-        ]);
-
-        $product->update($validated);
+        $product->update($validatedData);
 
         return $this->response('Ok', 200, [$product]);
     }
@@ -254,15 +214,9 @@ class ProductController extends Controller
      *     )
      * )
      */
-    public function destroy($id)
+    public function destroy(Product $product)
     {
         $this->authorize('userDeny', User::class);
-
-        $product = Product::find($id);
-
-        if (!$product) {
-            return $this->error('Not Found', 404);
-        }
 
         $product->delete();
 

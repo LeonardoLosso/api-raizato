@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StockMovementRequest;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
+use App\Services\ProductService;
 use App\Traits\HttpResponses;
-use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
@@ -18,6 +19,13 @@ use Illuminate\Http\Request;
 class StockMovementController extends Controller
 {
     use HttpResponses;
+
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
 
     /**
      * @OA\Get(
@@ -67,27 +75,10 @@ class StockMovementController extends Controller
      *     @OA\Response(response=403, description="Proibido")
      * )
      */
-    public function store(Request $request)
+    public function store(StockMovementRequest $request)
     {
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'movement_type' => 'required|in:entry,exit',
-            'quantity' => 'required|numeric',
-            'unit_price' => 'required|numeric',
-            'description' => 'nullable|string|max:255',
-        ]);
-
-        $movement = StockMovement::create($validated);
-
-        $product = Product::find($request->product_id);
-
-        if ($request->movement_type == 'entry') {
-            $product->stock += $request->quantity;
-        } elseif ($request->movement_type == 'exit') {
-            $product->stock -= $request->quantity;
-        }
-
-        $product->save();
+        $validatedData = $request->validate();
+        $movement = $this->productService->createStockMovement($validatedData);
         return $this->response('Created', 201, [$movement]);
     }
 
@@ -118,9 +109,7 @@ class StockMovementController extends Controller
     {
         $this->authorize('userDeny', User::class);
 
-        $movements = StockMovement::where('product_id', $productId)
-            ->with('product')
-            ->get();
+        $movements = $this->productService->getHistoryByProduct($productId);
 
         if ($movements->isEmpty()) {
             return $this->error('Not Found', 404);

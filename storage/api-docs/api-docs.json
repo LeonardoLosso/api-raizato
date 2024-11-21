@@ -329,6 +329,9 @@
                     "403": {
                         "description": "Não autorizado"
                     },
+                    "404": {
+                        "description": "Usuário não encontrado"
+                    },
                     "422": {
                         "description": "Erro de validação"
                     }
