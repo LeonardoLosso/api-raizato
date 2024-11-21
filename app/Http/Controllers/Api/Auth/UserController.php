@@ -122,13 +122,9 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function show(string $id)
+    public function show(User $user)
     {
-        $user = User::find($id);
-
-        if (!$user) {
-            return $this->response('Not Found', 404);
-        }
+        $user->load($user->getRelations());
 
         return $this->response('Ok', 200, [$user]);
     }

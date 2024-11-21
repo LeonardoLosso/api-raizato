@@ -69,13 +69,9 @@ class FornecedorController extends Controller
      *     )
      * )
      */
-    public function show(string $id)
+    public function show(Fornecedor $fornecedor)
     {
-        $fornecedor = Fornecedor::find($id);
-
-        if (!$fornecedor) {
-            return $this->error('Not Found', 404);
-        }
+        $fornecedor->load($fornecedor->getRelations());
 
         return $this->response('Ok', 200, [$fornecedor]);
     }

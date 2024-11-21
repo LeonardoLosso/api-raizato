@@ -93,13 +93,9 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function show($id)
+    public function show(Category $category)
     {
-        $category = Category::find($id);
-
-        if (!$category) {
-            return $this->response('Not Found', 404, [$category]);
-        }
+        $category->load($category->getRelations());
 
         return $this->response('Created', 201, [$category]);
     }
