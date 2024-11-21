@@ -34,7 +34,7 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         switch (get_class($exception)) {
-            // trata erro não autenticado
+                // trata erro não autenticado
             case AuthenticationException::class:
                 return response()->json([
                     'message' => 'Não autenticado.',
@@ -43,6 +43,7 @@ class Handler extends ExceptionHandler
             case AuthorizationException::class:
                 return response()->json([
                     'message' => 'Ação não autorizada.',
+                    'detailed' => $exception->getMessage(),
                 ], 403);
 
             case QueryException::class:

@@ -15,7 +15,7 @@ class StockMovementController extends Controller
 
     public function index()
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $movements = StockMovement::with('product')->get();
 
@@ -48,7 +48,7 @@ class StockMovementController extends Controller
 
     public function historyByProduct($productId)
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $movements = StockMovement::where('product_id', $productId)
             ->with('product')

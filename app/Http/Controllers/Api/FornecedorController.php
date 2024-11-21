@@ -33,7 +33,7 @@ class FornecedorController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $validated = $request->validate([
             'nome' => 'required|string|min:3|max:100',

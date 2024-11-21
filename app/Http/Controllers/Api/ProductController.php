@@ -36,7 +36,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $validated = $request->validate([
             'name' => 'required|string|max:50',
@@ -68,7 +68,7 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $product = Product::find($id);
 
@@ -95,7 +95,7 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $product = Product::find($id);
 

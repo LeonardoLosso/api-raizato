@@ -17,7 +17,7 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $validated = $request->validate([
             'name' => 'required|string|max:50',
@@ -42,7 +42,7 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $category = Category::find($id);
 
@@ -62,7 +62,7 @@ class CategoryController extends Controller
 
     public function destroy($id)
     {
-        $this->authorize('restringeUser', User::class);
+        $this->authorize('userDeny', User::class);
 
         $category = Category::find($id);
 

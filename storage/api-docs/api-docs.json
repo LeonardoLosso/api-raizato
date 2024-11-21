@@ -385,7 +385,7 @@
                 "properties": {
                     "id": {
                         "description": "ID do usuário",
-                        "type": "string"
+                        "type": "integer"
                     },
                     "firstName": {
                         "description": "Primeiro nome do usuário",
