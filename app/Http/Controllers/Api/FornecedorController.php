@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FornecedoresRequest;
 use App\Models\Fornecedor;
 use App\Models\User;
 use App\Traits\HttpResponses;
-use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
@@ -117,18 +117,15 @@ class FornecedorController extends Controller
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(FornecedoresRequest $request)
     {
-        $this->authorize('userDeny', User::class);
+        $validatedData = $request->validated();
 
-        $validated = $request->validate([
-            'nome' => 'required|string|min:3|max:100',
-            'cnpj' => 'required|string|size:14|unique:fornecedores,cnpj',
-            'contato' => 'nullable|string|max:100',
-        ]);
+        $created = User::create($validatedData);
+        if (!$created) {
+            return $this->error('Erro ao criar fornecedor', 400);
+        }
 
-        $fornecedor = Fornecedor::create($validated);
-
-        return $this->response('Created', 201, [$fornecedor]);
+        return $this->response('Created', 201, [$created]);
     }
 }
