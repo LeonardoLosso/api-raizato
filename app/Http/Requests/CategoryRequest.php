@@ -9,13 +9,7 @@ class CategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $authUser = auth()->user();
-
-        if (Gate::allows('userDeny', $authUser)) {
-            return true;
-        }
-
-        return false;
+        return Gate::allows('userDeny', auth()->user());
     }
 
     public function rules(): array
