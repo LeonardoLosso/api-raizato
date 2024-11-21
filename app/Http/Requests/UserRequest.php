@@ -18,8 +18,6 @@ class UserRequest extends FormRequest
 
         $this->validateUpdate($authUser, $targetUser);
 
-        $this->validateDestroy($authUser, $targetUser);
-
         return true;
     }
 
@@ -103,14 +101,5 @@ class UserRequest extends FormRequest
                 $this->merge(['role' => 'admin']);
             }
         }
-    }
-    
-    private function validateDestroy($authUser, $targetUser)
-    {
-        if ($authUser->role === 'user')
-            throw new AuthorizationException('Usuários não podem deletar usuários.');
-
-        if ($authUser->id !== $targetUser->id && $targetUser->role === 'admin')
-            throw new AuthorizationException('Apenas um Administrador pode deletar o próprio registro.');
     }
 }

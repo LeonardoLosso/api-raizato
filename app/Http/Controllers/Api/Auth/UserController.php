@@ -169,9 +169,14 @@ class UserController extends Controller
      *         description="Não autorizado"
      *     ),
      *     @OA\Response(
+     *         response=404,
+     *         description="Usuário não encontrado"
+     *     ),
+     *     @OA\Response(
      *         response=422,
      *         description="Erro de validação"
      *     )
+     * 
      * )
      */
     public function update(UserRequest $request, User $user)
@@ -209,6 +214,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $this->authorize('destroy', $user);
+
         $user->delete();
         return $this->response('No Content', 204);
     }
