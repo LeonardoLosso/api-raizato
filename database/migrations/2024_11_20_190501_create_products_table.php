@@ -20,8 +20,9 @@ return new class extends Migration
             $table->foreignId('fornecedor_id')->constrained('fornecedores')->onDelete('cascade');
             $table->decimal('cost_price', 10, 2);
             $table->decimal('sale_price', 10, 2);
-            $table->integer('min_stock');
             $table->date('expiry_date')->nullable();
+            $table->decimal('min_stock', 10, 2)->default(0);
+            $table->decimal('stock', 10, 2)->default(0);
             $table->timestamps();
         });
     }

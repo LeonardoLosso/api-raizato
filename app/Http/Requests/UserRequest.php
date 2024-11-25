@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class UserRequest extends FormRequest
 {
@@ -30,7 +31,7 @@ class UserRequest extends FormRequest
                 'email' => 'required|email|regex:/^.+@.+\\..+$/i|max:100|unique:users',
                 'phone' => 'nullable|string|max:20',
                 'password' => 'required|string|min:8|confirmed',
-                'password_confirmation' => 'required|string',
+                'passwordConfirmation' => 'required|string',
                 'role' => 'required|in:user,manager,admin',
             ];
         }
@@ -42,7 +43,7 @@ class UserRequest extends FormRequest
                 'email' => 'sometimes|required|email|regex:/^.+@.+\\..+$/i|max:100|unique:users,email,' . $this->user->id,
                 'phone' => 'nullable|string|max:20',
                 'password' => 'nullable|string|min:8|confirmed',
-                'password_confirmation' => 'nullable|string',
+                'passwordConfirmation' => 'nullable|string',
                 'role' => 'nullable|in:user,manager,admin',
             ];
         }
@@ -101,5 +102,14 @@ class UserRequest extends FormRequest
                 $this->merge(['role' => 'admin']);
             }
         }
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge(
+            collect($this->all())->mapWithKeys(function ($value, $key) {
+                return [Str::snake($key) => $value];
+            })->toArray()
+        );
     }
 }

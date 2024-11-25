@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\ProductService;
@@ -62,7 +63,7 @@ class ProductController extends Controller
      *         description="Lista de produtos retornada com sucesso",
      *         @OA\JsonContent(
      *             type="array",
-     *             @OA\Items(ref="#/components/schemas/Product")
+     *             @OA\Items(ref="#/components/schemas/ProductResource")
      *         )
      *     )
      * )
@@ -71,8 +72,9 @@ class ProductController extends Controller
     {
         $products = $this->productService->getProducts($request->all());
 
-        return $this->response('Ok', 200, [$products]);
+        return $this->response('Ok', 200, ProductResource::collection($products)->toArray(request()));
     }
+
 
     /**
      * @OA\Post(
@@ -82,12 +84,12 @@ class ProductController extends Controller
      *     tags={"Produtos"},
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *         @OA\JsonContent(ref="#/components/schemas/ProductResource")
      *     ),
      *     @OA\Response(
      *         response=201,
      *         description="Produto criado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *         @OA\JsonContent(ref="#/components/schemas/ProductResource")
      *     ),
      *     @OA\Response(
      *         response=422,
@@ -107,11 +109,11 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
-        $validatedData = $request->validate();
+        $validatedData = $request->validated();
 
-        $product = Product::create($validatedData);
+        $created = Product::create($validatedData);
 
-        return $this->response('Created', 201, [$product]);
+        return $this->response('Produto criado com sucesso!', 201, $created);
     }
 
     /**
@@ -130,7 +132,7 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Produto encontrado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *         @OA\JsonContent(ref="#/components/schemas/ProductResource")
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -141,11 +143,10 @@ class ProductController extends Controller
      *     )
      * )
      */
-    public function show(Product $product)
+    public function show(string $id)
     {
-        $product->load($product->getRelations());
-
-        return $this->response('Ok', 200, [$product]);
+        $product = Product::find($id);
+        return $this->response('Ok', 200, new ProductResource($product));
     }
 
     /**
@@ -163,12 +164,12 @@ class ProductController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *         @OA\JsonContent(ref="#/components/schemas/ProductResource")
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Produto atualizado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *         @OA\JsonContent(ref="#/components/schemas/ProductResource")
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -179,13 +180,13 @@ class ProductController extends Controller
      *     )
      * )
      */
-    public function update(ProductRequest $request, Product $product)
+    public function update(ProductRequest $request, string $id)
     {
-        $validatedData = $request->validate();
+        $validatedData = $request->validated();
 
-        $product->update($validatedData);
+        $updated = Product::find($id)->update($validatedData);
 
-        return $this->response('Ok', 200, [$product]);
+        return $this->response('Produto atualizado com sucesso', 200, $updated);
     }
 
     /**
@@ -214,12 +215,13 @@ class ProductController extends Controller
      *     )
      * )
      */
-    public function destroy(Product $product)
+    public function destroy(string $id)
     {
         $this->authorize('userDeny', User::class);
 
-        $product->delete();
+        $model = Product::findOrFail($id);
+        $model->delete();
 
-        return $this->response('No Content', 204, [$product]);
+        return $this->response('Excluido com Sucesso!', 204);
     }
 }

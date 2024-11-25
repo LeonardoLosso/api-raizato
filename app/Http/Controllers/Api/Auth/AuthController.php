@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @OA\Info(
@@ -61,10 +63,11 @@ class AuthController extends Controller
     {
         if (Auth::attempt($request->only('email', 'password'))) {
             return $this->response('Autenticado', 200, [
-                'token' => $request->user()->createToken('token', [$request->user()->role])->plainTextToken
+                'token' => $request->user()->createToken('token', [$request->user()->role])->plainTextToken,
+                'role' => $request->user()->role
             ]);
         }
-        return $this->response('Não autorizado', 403);
+        return $this->error('Não autorizado', 403);
     }
 
     /**

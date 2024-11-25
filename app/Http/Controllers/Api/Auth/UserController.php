@@ -42,13 +42,16 @@ class UserController extends Controller
      *     )
      * )
      */
+
     public function index()
     {
         $this->authorize('userDeny', User::class);
 
-        return $this->response('Ok', 200, [
-            UserResource::collection(User::all())
-        ]);
+        return $this->response(
+            'Ok',
+            200,
+            UserResource::collection(User::orderBy('created_at', 'desc')->get())
+        );
     }
 
     /**
@@ -94,7 +97,7 @@ class UserController extends Controller
         if (!$created) {
             return $this->error('Erro ao criar usuário', 400);
         }
-        return $this->response('Created', 201, [$created]);
+        return $this->response('Created', 201, $created);
     }
 
     /**
@@ -114,7 +117,7 @@ class UserController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Detalhes do usuário",
-     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *         @OA\JsonContent(ref="#/components/schemas/UserResource")
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -122,11 +125,21 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function show(User $user)
+    public function show($id)
     {
+        if ($id == 0) {
+            $user = auth()->user();
+        } else {
+            $user = User::find($id);
+        }
+
+        if (!$user) {
+            return $this->response('Usuário não encontrado', 404);
+        }
+
         $user->load($user->getRelations());
 
-        return $this->response('Ok', 200, [$user]);
+        return $this->response('Ok', 200, new UserResource($user));
     }
 
     /**
@@ -158,7 +171,7 @@ class UserController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Usuário atualizado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *         @OA\JsonContent(ref="#/components/schemas/UserResource")
      *     ),
      *     @OA\Response(
      *         response=403,
@@ -172,7 +185,6 @@ class UserController extends Controller
      *         response=422,
      *         description="Erro de validação"
      *     )
-     * 
      * )
      */
     public function update(UserRequest $request, User $user)
@@ -208,11 +220,38 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function destroy(User $user)
+    public function destroy(string $id)
     {
-        $this->authorize('destroy', $user);
+        $this->authorize('userDeny', User::class);
 
-        $user->delete();
-        return $this->response('No Content', 204);
+        $model = User::findOrFail($id);
+        $model->delete();
+
+        return $this->response('Excluido com Sucesso!', 204);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/auth/some-admin",
+     *     tags={"Usuários"},
+     *     summary="Verificar se existe um administrador",
+     *     description="Verifica se existe ao menos um administrador cadastrado no sistema.",
+     *     security={{"sanctum": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Verificação bem-sucedida",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="exists", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Não autorizado"
+     *     )
+     * )
+     */
+    public function someAdmin()
+    {
+        return $this->response('Ok', 200, User::where('role', 'admin')->exists());
     }
 }

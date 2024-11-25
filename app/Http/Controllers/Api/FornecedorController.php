@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FornecedoresRequest;
 use App\Models\Fornecedor;
 use App\Models\User;
+use App\Services\ProductService;
 use App\Traits\HttpResponses;
+use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
@@ -18,7 +20,12 @@ use App\Traits\HttpResponses;
 class FornecedorController extends Controller
 {
     use HttpResponses;
+    protected $productService;
 
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
     /**
      * @OA\Get(
      *     path="/api/fornecedores",
@@ -35,11 +42,11 @@ class FornecedorController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        $fornecedores = Fornecedor::all();
+        $fornecedores = $this->productService->getFornecedores($request->all());
 
-        return $this->response('Ok', 200, [$fornecedores]);
+        return $this->response('Ok', 200, $fornecedores);
     }
 
     /**
@@ -69,11 +76,10 @@ class FornecedorController extends Controller
      *     )
      * )
      */
-    public function show(Fornecedor $fornecedor)
+    public function show(string $id)
     {
-        $fornecedor->load($fornecedor->getRelations());
-
-        return $this->response('Ok', 200, [$fornecedor]);
+        $fornecedor = Fornecedor::where('id', $id)->first();
+        return $this->response('Ok', 200, $fornecedor);
     }
 
     /**
@@ -117,11 +123,93 @@ class FornecedorController extends Controller
     {
         $validatedData = $request->validated();
 
-        $created = User::create($validatedData);
+        $created = Fornecedor::create($validatedData);
         if (!$created) {
             return $this->error('Erro ao criar fornecedor', 400);
         }
 
-        return $this->response('Created', 201, [$created]);
+        return $this->response('Created', 201, $created);
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/fornecedores/{id}",
+     *     summary="Atualizar fornecedor",
+     *     description="Atualiza os dados de um fornecedor existente.",
+     *     tags={"Fornecedores"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID do fornecedor",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"nome", "cnpj"},
+     *             @OA\Property(property="nome", type="string", description="Nome do fornecedor", example="Fornecedor XYZ"),
+     *             @OA\Property(property="cnpj", type="string", description="CNPJ do fornecedor (apenas números)", example="98765432000101"),
+     *             @OA\Property(property="contato", type="string", description="Contato do fornecedor", example="suporte@fornecedor.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Fornecedor atualizado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Fornecedor")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Fornecedor não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Not Found")
+     *         )
+     *     )
+     * )
+     */
+    public function update(FornecedoresRequest $request, string $id)
+    {
+        $validatedData  = $request->validated();
+
+        $updated = Fornecedor::find($id)->update($validatedData);
+
+        return $this->response('Fornecedor atualizado com sucesso', 200, $updated);
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/fornecedores/{id}",
+     *     summary="Deletar fornecedor",
+     *     description="Remove um fornecedor pelo ID.",
+     *     tags={"Fornecedores"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID do fornecedor",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Fornecedor deletado com sucesso"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Fornecedor não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Not Found")
+     *         )
+     *     )
+     * )
+     */
+    public function destroy(string $id)
+    {
+        $this->authorize('userDeny', User::class);
+
+        $model = Fornecedor::findOrFail($id);
+        $model->delete();
+
+        return $this->response('Excluido com Sucesso!', 204);
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nome', 100);
             $table->string('cnpj', 14)->unique();
-            $table->string('contato', 100)->nullable();
+            $table->string('contato', 50)->nullable();
             $table->timestamps();
         });
     }

@@ -15,7 +15,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     @OA\Property(property="lastName", type="string", description="Último nome do usuário"),
  *     @OA\Property(property="fullName", type="string", description="Nome completo do usuário"),
  *     @OA\Property(property="phone", type="string", description="Telefone do usuário", nullable=true),
- *     @OA\Property(property="email", type="string", format="email", description="Email do usuário")
+ *     @OA\Property(property="email", type="string", format="email", description="Email do usuário"),
+ *     @OA\Property(property="role", type="string", enum={"user", "manager", "admin"}, description="Papel do usuário")
  * )
  */
 class UserResource extends JsonResource
@@ -28,7 +29,8 @@ class UserResource extends JsonResource
             'lastName' => $this->lastName,
             'fullName' => $this->firstName . ' ' . $this->lastName,
             'phone' => $this->phone,
-            'email' => $this->email
+            'email' => $this->email, 
+            'role' => $this->role
         ];
     }
 }

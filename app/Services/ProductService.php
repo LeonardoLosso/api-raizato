@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Category;
+use App\Models\Fornecedor;
 use App\Models\Product;
 use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
@@ -26,16 +28,22 @@ class ProductService
         }
 
         if (isset($filters['low_stock'])) {
-            $query->where('stock', '<', 'min_stock');
+
+            $query->whereRaw('stock <= min_stock');;
+
+            $query->orderBy('stock', 'DESC');
+        } else {
+            $query->orderBy('expiry_date', 'DESC');
         }
+
 
         return $query->get();
     }
 
     public function getHistoryByProduct($productId)
     {
-        return StockMovement::where('product_id', $productId)
-            ->with('product')
+        return StockMovement::with(['product', 'product.category'])
+            ->where('product_id', $productId)
             ->get();
     }
 
@@ -47,10 +55,9 @@ class ProductService
             $movement = StockMovement::create($data);
 
             $product = Product::findOrFail($data['product_id']);
-
-            if ($data['movement_type'] == 'entry') {
+            if ($data['movement_type'] == 'compras' || $data['movement_type'] == 'devolucoes') {
                 $product->stock += $data['quantity'];
-            } elseif ($data['movement_type'] == 'exit') {
+            } else{
                 $product->stock -= $data['quantity'];
             }
 
@@ -63,5 +70,25 @@ class ProductService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    public function getCategory(array $filters)
+    {
+        $query = Category::query();
+
+        if (isset($filters['search'])) {
+            $query->where('name', 'like', '%' . $filters['search'] . '%');
+        }
+        return $query->get();
+    }
+
+    public function getFornecedores(array $filters)
+    {
+        $query = Fornecedor::query();
+
+        if (isset($filters['search'])) {
+            $query->where('nome', 'like', '%' . $filters['search'] . '%');
+        }
+        return $query->get();
     }
 }

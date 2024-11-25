@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
 use App\Models\User;
+use App\Services\ProductService;
 use App\Traits\HttpResponses;
+use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
@@ -17,6 +19,13 @@ use App\Traits\HttpResponses;
 class CategoryController extends Controller
 {
     use HttpResponses;
+
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
 
     /**
      * @OA\Get(
@@ -30,10 +39,10 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
-        return $this->response('Ok', 200, [$categories]);
+        $categories = $this->productService->getCategory($request->all());
+        return $this->response('Ok', 200, $categories);
     }
 
     /**
@@ -68,7 +77,7 @@ class CategoryController extends Controller
         if (!$category)
             return $this->error('Erro ao criar categoria', 400);
 
-        return $this->response('Created', 201, [$category]);
+        return $this->response('Created', 201, $category);
     }
     /**
      * @OA\Get(
@@ -93,11 +102,10 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function show(Category $category)
+    public function show(string $id)
     {
-        $category->load($category->getRelations());
-
-        return $this->response('Created', 201, [$category]);
+        $category = Category::where('id', $id)->first();
+        return $this->response('Ok', 200, $category);
     }
 
     /**
@@ -135,13 +143,13 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function update(CategoryRequest $request, Category $category)
+    public function update(CategoryRequest $request, string $id)
     {
         $validatedData  = $request->validated();
 
-        $category->fill($validatedData)->save();
+        $updated = Category::find($id)->update($validatedData);
 
-        return $this->response('Categoria atualizada com sucesso', 200, [$category]);
+        return $this->response('Categoria atualizada com sucesso', 200, $updated);
     }
 
     /**
@@ -170,12 +178,13 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function destroy(Category $category)
+    public function destroy(string $id)
     {
         $this->authorize('userDeny', User::class);
 
-        $category->delete();
+        $model = Category::findOrFail($id);
+        $model->delete();
 
-        return $this->response('No Content', 204, [$category]);
+        return $this->response('Excluido com Sucesso!', 204);
     }
 }

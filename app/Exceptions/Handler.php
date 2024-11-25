@@ -82,16 +82,7 @@ class Handler extends ExceptionHandler
                 break;
 
             default:
-                return $this->error(
-                    $exception->getMessage(),
-                    $exception->getCode(),
-                    [
-                        'LINE: ' . $exception->getLine(),
-                        'FILE: ' . $exception->getFile()
-                    ],
-                    [$request->__toString()]
-                );
-                // return parent::render($request, $exception);
+                return parent::render($request, $exception);
         }
 
         return $this->error(

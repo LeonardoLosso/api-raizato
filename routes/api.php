@@ -12,6 +12,7 @@ Route::prefix('auth')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/verify', [UserController::class, 'someAdmin']);
 });
 
 
@@ -19,6 +20,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('fornecedores', FornecedorController::class);
     Route::apiResource('categorias', CategoryController::class);
     Route::apiResource('produtos', ProductController::class);
-    Route::apiResource('estoque', StockMovementController::class);
-    Route::get('estoque/historico/{productId}', [StockMovementController::class, 'historyByProduct']);
+    Route::apiResource('movimentacoes', StockMovementController::class);
+    Route::get('movimentacoes/historico/{productId}', [StockMovementController::class, 'historyByProduct']);
 });

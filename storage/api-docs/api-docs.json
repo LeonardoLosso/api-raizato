@@ -236,7 +236,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "$ref": "#/components/schemas/UserResource"
                                 }
                             }
                         }
@@ -321,7 +321,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "$ref": "#/components/schemas/UserResource"
                                 }
                             }
                         }
@@ -363,6 +363,42 @@
                 "responses": {
                     "204": {
                         "description": "Usuário excluído com sucesso"
+                    },
+                    "403": {
+                        "description": "Não autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/some-admin": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Verificar se existe um administrador",
+                "description": "Verifica se existe ao menos um administrador cadastrado no sistema.",
+                "operationId": "b41b4a71a2fcfff1b062cf20e17072a9",
+                "responses": {
+                    "200": {
+                        "description": "Verificação bem-sucedida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "exists": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "403": {
                         "description": "Não autorizado"
@@ -727,6 +763,126 @@
                         }
                     }
                 }
+            },
+            "put": {
+                "tags": [
+                    "Fornecedores"
+                ],
+                "summary": "Atualizar fornecedor",
+                "description": "Atualiza os dados de um fornecedor existente.",
+                "operationId": "44b6456df117348f9efef8d8d4e76de5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do fornecedor",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "cnpj"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "description": "Nome do fornecedor",
+                                        "type": "string",
+                                        "example": "Fornecedor XYZ"
+                                    },
+                                    "cnpj": {
+                                        "description": "CNPJ do fornecedor (apenas números)",
+                                        "type": "string",
+                                        "example": "98765432000101"
+                                    },
+                                    "contato": {
+                                        "description": "Contato do fornecedor",
+                                        "type": "string",
+                                        "example": "suporte@fornecedor.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Fornecedor atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Fornecedor"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Fornecedor não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Fornecedores"
+                ],
+                "summary": "Deletar fornecedor",
+                "description": "Remove um fornecedor pelo ID.",
+                "operationId": "50ee28e7a365f4702945dee6de07976a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do fornecedor",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Fornecedor deletado com sucesso"
+                    },
+                    "404": {
+                        "description": "Fornecedor não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/produtos": {
@@ -783,7 +939,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Product"
+                                        "$ref": "#/components/schemas/ProductResource"
                                     }
                                 }
                             }
@@ -803,7 +959,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Product"
+                                "$ref": "#/components/schemas/ProductResource"
                             }
                         }
                     }
@@ -814,7 +970,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Product"
+                                    "$ref": "#/components/schemas/ProductResource"
                                 }
                             }
                         }
@@ -877,7 +1033,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Product"
+                                    "$ref": "#/components/schemas/ProductResource"
                                 }
                             }
                         }
@@ -924,7 +1080,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Product"
+                                "$ref": "#/components/schemas/ProductResource"
                             }
                         }
                     }
@@ -935,7 +1091,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Product"
+                                    "$ref": "#/components/schemas/ProductResource"
                                 }
                             }
                         }
@@ -1081,6 +1237,109 @@
                 ]
             }
         },
+        "/api/estoque/{id}": {
+            "get": {
+                "tags": [
+                    "Movimentações"
+                ],
+                "summary": "Mostrar detalhes de um movimento de estoque",
+                "operationId": "showStockMovement",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do movimento de estoque",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do movimento de estoque",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StockMovement"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Movimento não encontrado"
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    },
+                    "403": {
+                        "description": "Proibido"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Movimentações"
+                ],
+                "summary": "Atualizar um movimento de estoque",
+                "operationId": "updateStockMovement",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do movimento de estoque",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StockMovement"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Movimento de estoque atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StockMovement"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro na validação dos dados"
+                    },
+                    "404": {
+                        "description": "Movimento não encontrado"
+                    },
+                    "401": {
+                        "description": "Não autorizado"
+                    },
+                    "403": {
+                        "description": "Proibido"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/estoque/historico/{productId}": {
             "get": {
                 "tags": [
@@ -1092,6 +1351,7 @@
                     {
                         "name": "productId",
                         "in": "path",
+                        "description": "ID do produto para buscar o histórico de movimentações",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -1132,6 +1392,135 @@
     },
     "components": {
         "schemas": {
+            "ProductResource": {
+                "required": [
+                    "name",
+                    "code",
+                    "category_id",
+                    "fornecedor_id",
+                    "cost_price",
+                    "sale_price",
+                    "min_stock",
+                    "stock",
+                    "expiry_date"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID do produto",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Nome do produto",
+                        "type": "string"
+                    },
+                    "code": {
+                        "description": "Código do produto",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Descrição do produto",
+                        "type": "string"
+                    },
+                    "categoryId": {
+                        "description": "ID da categoria",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "categoryName": {
+                        "description": "Nome da categoria",
+                        "type": "string",
+                        "example": "Automoveis"
+                    },
+                    "fornecedorId": {
+                        "description": "ID do fornecedor",
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "fornecedorName": {
+                        "description": "Nome do fornecedor",
+                        "type": "string",
+                        "example": "Simas Turbo"
+                    },
+                    "costPrice": {
+                        "description": "Preço de custo",
+                        "type": "number",
+                        "format": "float",
+                        "example": 100.5
+                    },
+                    "salePrice": {
+                        "description": "Preço de venda",
+                        "type": "number",
+                        "format": "float",
+                        "example": 150
+                    },
+                    "expiryDate": {
+                        "description": "Data de validade",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-12-31"
+                    }
+                },
+                "type": "object"
+            },
+            "StockMovementResource": {
+                "properties": {
+                    "id": {
+                        "description": "ID do movimento de estoque",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "productId": {
+                        "description": "ID do produto relacionado ao movimento",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "productName": {
+                        "description": "Nome do produto relacionado ao movimento",
+                        "type": "string",
+                        "example": "Produto XYZ"
+                    },
+                    "categoryName": {
+                        "description": "Nome da categoria do produto",
+                        "type": "string",
+                        "example": "Categoria ABC"
+                    },
+                    "movementType": {
+                        "description": "Tipo de movimento (entrada ou saída)",
+                        "type": "string",
+                        "example": "entrada"
+                    },
+                    "quantity": {
+                        "description": "Quantidade do movimento",
+                        "type": "number",
+                        "format": "float",
+                        "example": 10
+                    },
+                    "unitPrice": {
+                        "description": "Preço unitário do produto no movimento",
+                        "type": "number",
+                        "format": "float",
+                        "example": 15.5
+                    },
+                    "totalPrice": {
+                        "description": "Preço total calculado (unitPrice * quantity)",
+                        "type": "number",
+                        "format": "float",
+                        "example": 155
+                    },
+                    "description": {
+                        "description": "Descrição ou observação sobre o movimento",
+                        "type": "string",
+                        "example": "Compra de mercadoria"
+                    },
+                    "date": {
+                        "description": "Data do movimento",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-01"
+                    }
+                },
+                "type": "object"
+            },
             "UserResource": {
                 "required": [
                     "firstName",
@@ -1165,6 +1554,15 @@
                         "description": "Email do usuário",
                         "type": "string",
                         "format": "email"
+                    },
+                    "role": {
+                        "description": "Papel do usuário",
+                        "type": "string",
+                        "enum": [
+                            "user",
+                            "manager",
+                            "admin"
+                        ]
                     }
                 },
                 "type": "object"
@@ -1187,18 +1585,6 @@
                         "description": "Descrição da categoria",
                         "type": "string",
                         "example": "Categoria voltada para produtos de tecnologia."
-                    },
-                    "created_at": {
-                        "description": "Data de criação da categoria",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-11-21T10:00:00Z"
-                    },
-                    "updated_at": {
-                        "description": "Data da última atualização da categoria",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-11-21T11:00:00Z"
                     }
                 },
                 "type": "object"
@@ -1227,18 +1613,6 @@
                         "description": "Contato do fornecedor",
                         "type": "string",
                         "example": "contato@fornecedor.com"
-                    },
-                    "created_at": {
-                        "description": "Data de criação do fornecedor",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-11-21T10:00:00Z"
-                    },
-                    "updated_at": {
-                        "description": "Data da última atualização do fornecedor",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-11-21T11:00:00Z"
                     }
                 },
                 "type": "object"
@@ -1247,12 +1621,9 @@
                 "required": [
                     "name",
                     "code",
-                    "category_id",
-                    "fornecedor_id",
                     "cost_price",
                     "sale_price",
-                    "min_stock",
-                    "expiry_date"
+                    "stock"
                 ],
                 "properties": {
                     "id": {
@@ -1265,64 +1636,50 @@
                         "example": "Produto XYZ"
                     },
                     "code": {
-                        "description": "Código único do produto",
+                        "description": "Código identificador do produto",
                         "type": "string",
-                        "example": "PROD001"
+                        "example": "12345"
                     },
                     "description": {
                         "description": "Descrição do produto",
                         "type": "string",
-                        "example": "Descrição detalhada do produto"
+                        "example": "Um excelente produto para uso diário."
                     },
                     "category_id": {
-                        "description": "ID da categoria associada",
-                        "type": "integer",
-                        "example": 1
+                        "description": "ID da categoria associada ao produto",
+                        "type": "integer"
                     },
                     "fornecedor_id": {
-                        "description": "ID do fornecedor associado",
-                        "type": "integer",
-                        "example": 2
+                        "description": "ID do fornecedor associado ao produto",
+                        "type": "integer"
                     },
                     "cost_price": {
-                        "description": "Preço de custo",
+                        "description": "Preço de custo do produto",
                         "type": "number",
                         "format": "float",
-                        "example": 25.5
+                        "example": 15.5
                     },
                     "sale_price": {
-                        "description": "Preço de venda",
+                        "description": "Preço de venda do produto",
                         "type": "number",
                         "format": "float",
-                        "example": 50
+                        "example": 20
                     },
                     "min_stock": {
-                        "description": "Quantidade mínima em estoque",
+                        "description": "Quantidade mínima no estoque",
                         "type": "integer",
                         "example": 10
                     },
                     "stock": {
-                        "description": "Quantidade atual em estoque",
+                        "description": "Quantidade disponível no estoque",
                         "type": "integer",
                         "example": 50
                     },
                     "expiry_date": {
-                        "description": "Data de validade do produto",
+                        "description": "Data de validade do produto (se aplicável)",
                         "type": "string",
                         "format": "date",
                         "example": "2025-12-31"
-                    },
-                    "created_at": {
-                        "description": "Data de criação do produto",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-11-21T10:00:00Z"
-                    },
-                    "updated_at": {
-                        "description": "Data da última atualização do produto",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-11-21T11:00:00Z"
                     }
                 },
                 "type": "object"
@@ -1332,7 +1689,9 @@
                     "product_id",
                     "movement_type",
                     "quantity",
-                    "unit_price"
+                    "unit_price",
+                    "date",
+                    "user_id"
                 ],
                 "properties": {
                     "id": {
@@ -1340,39 +1699,42 @@
                         "type": "integer"
                     },
                     "product_id": {
-                        "description": "ID do produto",
-                        "type": "integer"
+                        "description": "ID do produto relacionado ao movimento",
+                        "type": "integer",
+                        "example": 1
                     },
                     "movement_type": {
-                        "description": "Tipo de movimento ('entrada' ou 'saída')",
+                        "description": "Tipo de movimento (entrada ou saída)",
                         "type": "string",
-                        "enum": [
-                            "entry",
-                            "exit"
-                        ]
+                        "example": "entrada"
                     },
                     "quantity": {
-                        "description": "Quantidade movimentada",
-                        "type": "integer"
+                        "description": "Quantidade do movimento",
+                        "type": "number",
+                        "format": "float",
+                        "example": 10
                     },
                     "unit_price": {
                         "description": "Preço unitário do produto no movimento",
                         "type": "number",
-                        "format": "float"
+                        "format": "float",
+                        "example": 15.5
                     },
                     "description": {
-                        "description": "Descrição adicional sobre o movimento",
-                        "type": "string"
-                    },
-                    "created_at": {
-                        "description": "Data de criação do movimento",
+                        "description": "Descrição ou observação sobre o movimento",
                         "type": "string",
-                        "format": "date-time"
+                        "example": "Compra de mercadoria"
                     },
-                    "updated_at": {
-                        "description": "Data de atualização do movimento",
+                    "date": {
+                        "description": "Data do movimento",
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date",
+                        "example": "2024-01-01"
+                    },
+                    "user_id": {
+                        "description": "ID do usuário responsável pelo movimento",
+                        "type": "integer",
+                        "example": 5
                     }
                 },
                 "type": "object"
